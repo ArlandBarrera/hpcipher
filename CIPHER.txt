@@ -1,4 +1,10 @@
 // ---------------------------------
+// Author: Arland Barrera
+// Date: 29/11/2025
+// Comment: made to facilitate a university exam
+// ---------------------------------
+
+// ---------------------------------
 // Caesar Cipher - ROT3
 // ---------------------------------
 EXPORT ROT3()
