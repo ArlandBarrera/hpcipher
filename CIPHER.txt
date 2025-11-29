@@ -1,0 +1,377 @@
+// ---------------------------------
+// Caesar Cipher - ROT3
+// ---------------------------------
+EXPORT ROT3()
+BEGIN
+LOCAL C:="",R:="",I,L,D,S:=3,M:=90,A:=26;
+INPUT({{C,[2]}},
+"Caesar Cipher - ROT3",
+"Chars",
+"Letters [A-Z,a-z],press [ALPHA] or [Shift][ALPHA]");
+FOR I FROM 1 TO DIM(C) DO
+  D:=C[I];
+  IF (D >= 65) AND (D <= 90) THEN
+    M:=90; // uppercase
+  ELSE
+    M:=122; // lowercase
+  END;
+  L:=when(D+S>M,D+S-A,D+S);
+  R:=R+CHAR(L);
+END;
+// output
+PRINT();
+PRINT("Caesar Cipher - ROT3");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
+
+// ---------------------------------
+// ROT13
+// ---------------------------------
+EXPORT ROT13()
+BEGIN
+LOCAL C:="",R:="",I,L,D,S:=13,M:=90,A:=26;
+INPUT({{C,[2]}},
+"ROT13",
+"Chars",
+"Letters [A-Z,a-z],press [ALPHA] or [Shift][ALPHA]");
+FOR I FROM 1 TO DIM(C) DO
+  D:=C[I];
+  IF (D >= 65) AND (D <= 90) THEN
+    M:=90; // uppercase
+  ELSE
+    M:=122; // lowercase
+  END;
+  L:=when(D+S>M,D+S-A,D+S);
+  R:=R+CHAR(L);
+END;
+// output
+PRINT();
+PRINT("ROT13");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
+
+// ---------------------------------
+// ROT47
+// ---------------------------------
+EXPORT ROT47()
+BEGIN
+LOCAL C:="",R:="",I,L,D,S:=47,M:=126,A:=94;
+INPUT({{C,[2]}},
+"ROT47",
+"Chars",
+"ASCII from ! to ~, press [Shift][Vars]");
+FOR I FROM 1 TO DIM(C) DO
+  L:=when(C[I]+S>M,C[I]+S-A,C[I]+S);
+  R:=R+CHAR(L);
+END;
+// output
+PRINT();
+PRINT("ROT47");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
+
+// ---------------------------------
+// Atbash
+// ---------------------------------
+EXPORT Atbash()
+BEGIN
+LOCAL C:="",R:="",I,L,S,D,A:=25;
+INPUT({{C,[2]}},
+"Atbash",
+"Chars",
+"Letters [A-Z,a-z],press [ALPHA] or [Shift][ALPHA]");
+// upper[65,90],lower[97,122]
+FOR I FROM 1 TO DIM(C) DO
+  D:=C[I];
+  IF (D >= 65) AND (D <= 90) THEN
+    S:=65; // uppercase
+  ELSE
+    S:=97; // lowercase
+  END;
+  L:=(S+A)-(D-S);
+  R:=R+CHAR(L);
+END;
+// output
+PRINT();
+PRINT("Atbash");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
+
+// ---------------------------------
+// Vigenere
+// ---------------------------------
+EXPORT Vigenere()
+BEGIN
+LOCAL C:="",R:="",I,J:=1,L,K;
+// multiple input
+INPUT({{C,[2]},K},
+"Vigenere",
+{"Chars","Key"},
+{"Upper letters [A-Z], press [ALPHA][ALPHA]","Numbers [1-9]"});
+// list of keys
+LOCAL KN:={},CN:=K;
+// loop for adding keys to list
+WHILE CN > 0 DO
+  I:=I+1;
+  LOCAL LN := CN MOD 10;
+  KN:=INSERT(KN,I,LN);
+  CN := FLOOR(CN / 10);
+END;
+KN := REVERSE(KN);
+// loop for cipher
+FOR I FROM 1 TO DIM(C) DO
+  L:=when(C[I]+KN[J]>M,C[I]+KN[J]-A,C[I]+KN[J]);
+  R:=R+CHAR(L);
+  J:=when(J+1>SIZE(KN),J+1-SIZE(KN),J+1);
+END;
+// output
+PRINT();
+PRINT("Blaise de Vigenere");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Key");
+PRINT(K);
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
+
+// ---------------------------------
+// Transposition Permutation
+// ---------------------------------
+EXPORT TpsPrmt()
+BEGIN
+LOCAL C:="",R:="",I,J:=1,L,K;
+// multiple input
+INPUT({{C,[2]},K},
+"Transposition Permutation",
+{"Chars","Permutation"},
+{"Letters [A-Z,a-z],press [ALPHA] or [Shift][ALPHA]",
+"Numbers [1-9]"});
+// list of keys
+LOCAL KN:={},CN:=K;
+// list of chars
+LOCAL CL:={},CC:="",CS:={},V:=1,BC,SB,TL:={},TS:="";
+// loop for adding keys to list
+WHILE CN > 0 DO
+  I:=I+1;
+  LOCAL LN := CN MOD 10;
+  KN:=INSERT(KN,I,LN);
+  CN := FLOOR(CN / 10);
+END;
+KN := REVERSE(KN);
+// loop for adding chars to list
+FOR I FROM 1 TO DIM(C) DO
+  CC:=MID(C, I, 1);
+  IF CC==" " THEN
+    CC:="-";
+  END;
+  CS:=INSERT(CS,J,CC);
+  // check if chars are depleted
+  BC:=DIM(C) - DIM(MID(C,I));
+  // update CS replace blank for underscore at end
+  IF BC == (DIM(C)-1) THEN
+    SB:=SIZE(KN)-SIZE(CS);
+    IF SB > 0 THEN
+      FOR L FROM (J + 1) TO SIZE(KN) DO
+        CS:=INSERT(CS,L,"_");
+      END;
+    END;
+  END; // end of check
+  IF SIZE(CS) == SIZE(KN) THEN
+    // normal flow
+    CL:=INSERT(CL,V,CS);
+    V:=V+1;
+    J:=1;
+    CS:={}
+  ELSE
+    J:=J+1;
+  END;
+END;
+V:=V-1; // adjust overvalue of rows
+// loop for transpose chars list
+FOR I FROM 1 TO SIZE(KN) DO
+  FOR J FROM 1 TO V DO
+    TS:=TS+CL[J,I];
+  END;
+  TL:=INSERT(TL,I,TS);
+  TS:="";
+END;
+// loop for cipher
+FOR I FROM 1 TO SIZE(KN) DO
+  R:=R+TL[KN[I]];
+END;
+// output
+PRINT();
+PRINT("Transposition Permutation");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Permutation");
+PRINT("{"+STRING(K)+"}");
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
+
+// ---------------------------------
+// Transposition Columns
+// ---------------------------------
+EXPORT TpsColm()
+BEGIN
+LOCAL C:="",R:="",I,J:=1,L,K:="";
+// multiple input
+INPUT({{C,[2]},{K,[2]}},
+"Transposition Columns",
+{"Chars","Key"},
+{"Letters [A-Z,a-z],press [ALPHA] or [Shift][ALPHA]",
+"Upper letters [A-Z], press [ALPHA][ALPHA]"});
+// list of letters, starting A=1
+LOCAL S:={"A","B","C","D","E","F","G","H",
+"I","J","K","L","M","N","O","P","Q","R","S",
+"T","U","V","W","X","Y","Z"};
+// list of keys
+LOCAL KN:={},CN,KV:={},KS:={};
+// list of chars
+LOCAL CL:={},CC:="",CS:={},V:=1,BC,SB,TL:={},TS:="";
+// loop for map letters to numbers
+FOR I FROM 1 TO DIM(K) DO
+  KV:=INSERT(KV,I,POS(S,MID(K, I, 1)));
+END;
+// sort letter numbers
+KS:=SORT(KV);
+// loop for map numbers to indexes
+FOR I FROM 1 TO DIM(K) DO
+  KN:=INSERT(KN,I,POS(KV,KS[I]));
+END;
+// loop for adding chars to list
+FOR I FROM 1 TO DIM(C) DO
+  CC:=MID(C, I, 1);
+  IF CC==" " THEN
+    CC:="-";
+  END;
+  CS:=INSERT(CS,J,CC);
+  // check if chars are depleted
+  BC:=DIM(C) - DIM(MID(C,I));
+  // update CS replace blank for underscore at end
+  IF BC == (DIM(C)-1) THEN
+    SB:=SIZE(KN)-SIZE(CS);
+    IF SB > 0 THEN
+      FOR L FROM (J + 1) TO SIZE(KN) DO
+        CS:=INSERT(CS,L,"$");
+      END;
+    END;
+  END; // end of check
+  IF SIZE(CS) == SIZE(KN) THEN
+    // normal flow
+    CL:=INSERT(CL,V,CS);
+    V:=V+1;
+    J:=1;
+    CS:={}
+  ELSE
+    J:=J+1;
+  END;
+END;
+V:=V-1; // adjust overvalue of rows
+// loop for transpose chars list
+FOR I FROM 1 TO SIZE(KN) DO
+  FOR J FROM 1 TO V DO
+    TS:=TS+CL[J,I];
+  END;
+  TL:=INSERT(TL,I,TS);
+  TS:="";
+END;
+// loop for cipher
+FOR I FROM 1 TO SIZE(KN) DO
+  R:=R+TL[KN[I]];
+END;
+// output
+PRINT();
+PRINT("Transposition Columns");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Key");
+PRINT(K);
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
+
+// ---------------------------------
+// Function XOR
+// ---------------------------------
+EXPORT FuncXOR()
+BEGIN
+LOCAL C:="",R:="",K:="",L:="",I,J:=1;
+// list of chars and keys
+LOCAL CL:={},KL:={};
+// list of letters, starting A=1 not A=0
+LOCAL S:={"A","B","C","D","E","F","G","H",
+"I","J","K","L","M","N","O","P","Q","R","S",
+"T","U","V","W","X","Y","Z"};
+LOCAL UC:="_";
+LOCAL CN,KN,X;
+// multiple input
+INPUT({{C,[2]},{K,[2]}},
+"Function XOR",
+{"Chars","Key"},
+{"Upper letters [A-Z], press [ALPHA][ALPHA]",
+"Upper letters [A-Z], press [ALPHA][ALPHA]"});
+// loop for adding chars to list
+FOR I FROM 1 TO DIM(C) DO
+  CL:=INSERT(CL,I,MID(C, I, 1));
+END;
+// loop for adding keys to list
+FOR I FROM 1 TO DIM(K) DO
+  KL:=INSERT(KL,I,MID(K, I, 1));
+END;
+// loop for cipher
+FOR I FROM 1 TO DIM(C) DO
+  // char number
+  LOCAL CN:=POS(S,CL[I]);
+  // key number
+  LOCAL KN:=POS(S,KL[J]);
+  LOCAL X:=BITXOR(CN,KN);
+  // return underscore if 0
+  L:=when(X==0,UC,S[X]);
+  R:=R+L;
+  J:=when(J+1>SIZE(KL),J+1-SIZE(KL),J+1);
+END;
+// output
+PRINT();
+PRINT("Function XOR");
+PRINT("--------------------");
+PRINT("Original");
+PRINT(C);
+PRINT("--------------------");
+PRINT("Key");
+PRINT(K);
+PRINT("--------------------");
+PRINT("Cipher");
+PRINT(R);
+END;
